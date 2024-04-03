@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Результати опитування</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .result {
+        background-color: #ffffff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .result p {
+        margin: 0;
+    }
+
+    .result img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+
+</style>
+</head>
+<body>
+
+<h2>Результати опитування</h2>
+
+<div id="surveyResults" class="survey-container">
+    <!-- Тут будуть відображені результати опитування -->
+</div>
+
+<script>
+// Функція для відображення результатів
+function displayResults() {
+    const surveyResultsContainer = document.getElementById("surveyResults");
+    surveyResultsContainer.innerHTML = ""; // Очищаємо контейнер перед відображенням нових результатів
+    
+    // Фільтруємо та відображаємо учасників, які люблять потяг
+    const trainLovers = filterByTrainLovers();
+    appendResults(trainLovers, "Учасники, які люблять потяг:", surveyResultsContainer);
+    
+    // Фільтруємо та відображаємо учасників, які люблять піші прогулянки
+    const hikingLovers = filterByHikingLovers();
+    appendResults(hikingLovers, "Учасники, які люблять піші прогулянки:", surveyResultsContainer);
+    
+    // Фільтруємо та відображаємо учасників з вказаною датою від'їзду
+    const specificDepartureDate = "2024-03-31"; // Замість "2024-03-31" вкажіть потрібну дату
+    const surveysWithSpecificDepartureDate = filterByDepartureDate(specificDepartureDate);
+    appendResults(surveysWithSpecificDepartureDate, `Учасники з датою від'їзду ${specificDepartureDate}:`, surveyResultsContainer);
+}
+
+// Функція для відображення результатів у контейнері
+function appendResults(results, heading, container) {
+    const headingElement = document.createElement("h3");
+    headingElement.textContent = heading;
+    container.appendChild(headingElement);
+
+    if (results.length === 0) {
+        const noResultsElement = document.createElement("p");
+        noResultsElement.textContent = "Немає результатів";
+        container.appendChild(noResultsElement);
+    } else {
+        results.forEach(result => {
+            const resultElement = document.createElement("p");
+            resultElement.textContent = JSON.stringify(result);
+            container.appendChild(resultElement);
+        });
+    }
+}
+
+function filterByTrainLovers() {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників, які люблять потяг
+    return surveys.filter(result => result.transport === "train");
+}
+
+function filterByHikingLovers() {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників, які люблять піші прогулянки
+    return surveys.filter(result => result.activity === "hiking");
+}
+
+function filterByDepartureDate(departureDate) {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників з вказаною датою від'їзду
+    return surveys.filter(result => result.departureDate === departureDate);
+}
+
+// Викликаємо функцію для відображення результатів при завантаженні сторінки
+displayResults();
+</script>
+
+</body>
+</html>

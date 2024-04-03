@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Опитування про подорожі</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    label.question {
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="email"],
+    input[type="number"],
+    textarea,
+    select {
+        width: calc(100% - 10px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    input[type="submit"] {
+        width: 100%;
+        background-color: #ff9900;
+        color: white;
+        padding: 14px 20px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #df8601;
+    }
+
+    .radio-group label,
+    .checkbox-group label {
+        display: inline-block;
+        margin-right: 20px;
+    }
+
+    .radio-group label,
+    .checkbox-group label,
+    select {
+        font-size: 14px;
+    }
+
+    .checkbox-group label {
+        display: block;
+        margin-right: 0;
+    }
+
+    .checkbox-group label + label {
+        margin-top: 5px;
+    }
+
+    #hidden-image {
+        display: none; /* Приховує зображення на сторінці */
+    }
+</style>
+</head>
+<body>
+
+<h2>Опитування про подорожі</h2>
+
+<form id="surveyForm">
+    <label class="question" for="destination">1. Ваша улюблена країна для відпочинку:</label>
+    <input type="text" id="destination" name="destination">
+
+    <label class="question">2. Оберіть ваш улюблений засіб транспорту:</label>
+    <label for="transport1"><input type="radio" id="transport1" name="transport" value="plane"> Літак</label>
+    <label for="transport2"><input type="radio" id="transport2" name="transport" value="car"> Автомобіль</label>
+    <label for="transport3"><input type="radio" id="transport3" name="transport" value="train"> Потяг</label>
+    <label for="transport4"><input type="radio" id="transport4" name="transport" value="other"> Інше</label>
+
+    <label class="question">3. Яким видам активного відпочинку ви надаєте перевагу?</label>
+    <label for="activity1"><input type="checkbox" id="activity1" name="activity" value="hiking"> Піші прогулянки</label>
+    <label for="activity2"><input type="checkbox" id="activity2" name="activity" value="beach"> Відпочинок на пляжі</label>
+    <label for="activity3"><input type="checkbox" id="activity3" name="activity" value="sightseeing"> Огляд визначних місць</label>
+    <label for="activity4"><input type="checkbox" id="activity4" name="activity" value="other"> Інше</label>
+
+
+    <label class="question" for="departureDate">4. Дата вашого наступного від’їзду:</label>
+    <input type="date" id="departureDate" name="departureDate">
+
+    <label class="question" for="departureTime">5. Час відправлення:</label>
+    <input type="time" id="departureTime" name="departureTime">
+
+    <label class="question" for="budget">6. Ваш бюджет на подорож: <output id="budgetValue">0</output> грн</label>
+    <input type="range" id="budget" name="budget" min="0" max="200000" oninput="budgetValue.value = this.value">    
+
+    <label class="question" for="feedback">7. Відгук про вашу останню подорож:</label>
+    <textarea id="feedback" name="feedback" rows="4"></textarea>
+
+    <label class="question" for="photo">8. Завантажте фото з вашої останньої подорожі:</label>
+    <input type="file" id="photo" name="photo">
+
+    <label class="question" for="email">9. Вкажіть вашу електронну адресу для отримання новин та пропозицій про подорожі:</label>
+    <input type="email" id="email" name="email">
+
+    <label class="question" for="rating">10. Оцініть вашу останню подорож за шкалою від 1 до 10:</label>
+    <input type="number" id="rating" name="rating" min="1" max="10">
+
+    <input type="submit" value="Відправити">
+</form>
+
+
+<script>
+document.getElementById("surveyForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const surveyResults = {};
+    for (const [key, value] of formData.entries()) {
+        surveyResults[key] = value;
+    }
+
+    // Зчитуємо фото, якщо воно завантажене
+    const inputEl = document.getElementById('photo');
+    if (inputEl.files.length > 0) {
+        const file = inputEl.files[0]; 
+        const fr = new FileReader();
+        fr.readAsDataURL(file);
+        fr.addEventListener('load', () => {
+            surveyResults.photo = fr.result;
+            saveSurveyResults(surveyResults);
+        });
+    } else {
+        // Якщо фото не завантажене, зберігаємо дані без нього
+        saveSurveyResults(surveyResults);
+    }
+});
+
+function saveSurveyResults(surveyResults) {
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+    surveys.push(surveyResults);
+    localStorage.setItem("surveys", JSON.stringify(surveys));
+    alert("Результати опитування збережено!");
+    location.reload(); // Перезавантажуємо сторінку, щоб побачити зміни в результатах
+}
+
+function filterByTrainLovers() {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників, які люблять потяг
+    const trainLovers = surveys.filter(result => result.transport === "train");
+
+    return trainLovers;
+}
+
+
+const trainLovers = filterByTrainLovers();
+console.log(trainLovers);
+
+function filterByHikingLovers() {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників, які люблять піші прогулянки
+    const hikingLovers = surveys.filter(result => result.activity ==="hiking");
+
+    return hikingLovers;
+}
+
+
+const hikingLovers = filterByHikingLovers();
+console.log(hikingLovers);
+
+function filterByDepartureDate(departureDate) {
+    // Отримуємо дані з localStorage
+    const surveys = JSON.parse(localStorage.getItem("surveys")) || [];
+
+    // Фільтруємо учасників з вказаною датою від'їзду
+    const filteredSurveys = surveys.filter(result => result.departureDate === departureDate);
+
+    return filteredSurveys;
+}
+
+
+const specificDepartureDate = "2024-03-31";
+const surveysWithSpecificDepartureDate = filterByDepartureDate(specificDepartureDate);
+console.log(surveysWithSpecificDepartureDate);
+
+
+</script>
+
+</body>
+</html>
+
